@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceDogle - Joc Arcade</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="menuScreen">
+            <div class="stars" id="menuStars"></div>
+            <h1 class="gameTitle">SPACEDOGLE</h1>
+            <div class="menuButtons">
+                <button id="playButton" class="arcadeButton">PLAY</button>
+                <div class="buttonRow">
+                    <button id="resetButton" class="smallButton">Reset</button>
+                    <button id="settingsButton" class="smallButton">Setări</button>
+                    <button id="extraButton" class="smallButton">Bonus</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameScreen">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div class="gameUI">
+                <div class="uiElement">Scor: <span id="scoreValue">0</span></div>
+                <div class="uiElement">Viață: <span id="livesValue">3</span></div>
+            </div>
+            <div id="gameOverScreen">
+                <div class="gameOverText">GAME OVER</div>
+                <div class="finalScore">Scor: <span id="finalScore">0</span></div>
+                <button id="restartButton" class="arcadeButton">JOACĂ DIN NOU</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script/script.js"></script>
+</body>
+</html>
