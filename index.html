@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpaceDogle - Arcade Game</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style/game.css">
+    <link rel="stylesheet" href="../style/menu.css"
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -19,6 +20,16 @@
                     <button id="settingsButton" class="smallButton">Settings</button>
                     <button id="extraButton" class="smallButton">Bonus</button>
                 </div>
+        
+                <div class="usernameSection">
+                    <div class="usernameInputContainer">
+                        <input type="text" id="usernameInput" placeholder="Enter username" maxlength="15">
+                        <button id="saveUsernameBtn" class="saveButton">
+                            <span class="checkmark">✓</span>
+                        </button>
+                    </div>
+                    <div class="usernameFeedback" id="usernameFeedback"></div>
+                </div>
             </div>
         </div>
 
@@ -27,6 +38,7 @@
             <div class="gameUI">
                 <div class="uiElement">Score: <span id="scoreValue">0</span></div>
                 <div class="uiElement">Lives: <span id="livesValue">3</span></div>
+                <div class="uiElement">Player: <span id="playerName">Guest</span></div>
             </div>
             <div id="gameOverScreen">
                 <div class="gameOverText">GAME OVER</div>
@@ -37,5 +49,6 @@
     </div>
 
     <script src="../script/script.js"></script>
+    <script src="../script/username.js"></script>
 </body>
 </html>

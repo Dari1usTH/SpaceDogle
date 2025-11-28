@@ -1,0 +1,50 @@
+#gameCanvas {
+    background: #000015;
+    display: block;
+}
+
+.gameUI {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 20px;
+}
+
+.uiElement {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #00ccff;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 0 10px #00ccff;
+}
+
+#gameOverScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+.gameOverText {
+    font-size: 3rem;
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+    margin-bottom: 30px;
+}
+
+.finalScore {
+    font-size: 2rem;
+    color: #00ccff;
+    margin-bottom: 30px;
+}

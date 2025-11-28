@@ -46,11 +46,6 @@ body {
     opacity: 0;
 }
 
-#gameCanvas {
-    background: #000015;
-    display: block;
-}
-
 .gameTitle {
     font-size: 4rem;
     margin-bottom: 2rem;
@@ -73,25 +68,25 @@ body {
 .menuButtons {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    width: 80%;
-    max-width: 300px;
+    gap: 25px;
+    width: 90%;
+    max-width: 400px;
 }
 
 .arcadeButton {
     background: linear-gradient(to bottom, #ff00ff, #9900cc);
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     color: white;
-    font-size: 1.5rem;
-    padding: 15px 30px;
+    font-size: 1.8rem;
+    padding: 20px 40px;
     cursor: pointer;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 2px;
     box-shadow: 
-        0 5px 0 #660099,
-        0 0 10px #ff00ff;
+        0 6px 0 #660099,
+        0 0 15px #ff00ff;
     transition: all 0.1s;
     position: relative;
     overflow: hidden;
@@ -100,15 +95,15 @@ body {
 .arcadeButton:hover {
     transform: translateY(2px);
     box-shadow: 
-        0 3px 0 #660099,
-        0 0 15px #ff00ff;
+        0 4px 0 #660099,
+        0 0 20px #ff00ff;
 }
 
 .arcadeButton:active {
-    transform: translateY(5px);
+    transform: translateY(6px);
     box-shadow: 
         0 0 0 #660099,
-        0 0 20px #ff00ff;
+        0 0 25px #ff00ff;
 }
 
 .arcadeButton::after {
@@ -129,36 +124,39 @@ body {
 
 .buttonRow {
     display: flex;
-    justify-content: space-between;
-    width: 80%;
-    max-width: 300px;
-    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 10px;
 }
 
 .smallButton {
     background: linear-gradient(to bottom, #00ccff, #0066cc);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
-    font-size: 1rem;
-    padding: 10px 15px;
+    font-size: 1.1rem;
+    padding: 12px 20px;
     cursor: pointer;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 
-        0 4px 0 #004499,
-        0 0 8px #00ccff;
+        0 5px 0 #004499,
+        0 0 10px #00ccff;
     transition: all 0.1s;
-    flex: 1;
-    margin: 0 5px;
+    flex: 0 1 auto;
+    min-width: 90px;
+    white-space: nowrap;
 }
 
 .smallButton:hover {
     transform: translateY(2px);
     box-shadow: 
-        0 2px 0 #004499,
-        0 0 12px #00ccff;
+        0 3px 0 #004499,
+        0 0 15px #00ccff;
 }
 
 .stars {
@@ -176,48 +174,101 @@ body {
     border-radius: 50%;
 }
 
-.gameUI {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 10;
-    display: flex;
-    gap: 20px;
+.usernameSection {
+    margin-top: 30px;
+    width: 100%;
+    max-width: 350px;
 }
 
-.uiElement {
+.usernameInputContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#usernameInput {
+    flex: 1;
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid #00ccff;
-    border-radius: 8px;
-    padding: 8px 15px;
+    border-radius: 10px;
+    padding: 12px 18px;
     color: white;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    font-family: 'Orbitron', sans-serif;
     box-shadow: 0 0 10px #00ccff;
+    transition: all 0.3s;
 }
 
-#gameOverScreen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: none;
-    flex-direction: column;
-    justify-content: center;
+#usernameInput:focus {
+    outline: none;
+    border-color: #ff00ff;
+    box-shadow: 0 0 15px #ff00ff;
+}
+
+#usernameInput::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.saveButton {
+    background: linear-gradient(to bottom, #00ccff, #0066cc);
+    border: none;
+    border-radius: 10px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
     align-items: center;
-    z-index: 20;
+    justify-content: center;
+    box-shadow: 
+        0 5px 0 #004499,
+        0 0 10px #00ccff;
+    transition: all 0.3s;
 }
 
-.gameOverText {
-    font-size: 3rem;
-    color: #ff00ff;
-    text-shadow: 0 0 10px #ff00ff;
-    margin-bottom: 30px;
+.saveButton:hover {
+    transform: translateY(2px);
+    box-shadow: 
+        0 3px 0 #004499,
+        0 0 15px #00ccff;
 }
 
-.finalScore {
-    font-size: 2rem;
-    color: #00ccff;
-    margin-bottom: 30px;
+.checkmark {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.usernameFeedback {
+    height: 22px;
+    font-size: 1rem;
+    text-align: center;
+    transition: all 0.3s;
+    opacity: 0;
+}
+
+.feedback-success {
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+    opacity: 1;
+}
+
+.feedback-error {
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+    opacity: 1;
+}
+
+.save-success {
+    background: linear-gradient(to bottom, #00ff00, #009900) !important;
+    box-shadow: 
+        0 5px 0 #006600,
+        0 0 15px #00ff00 !important;
+}
+
+.save-error {
+    background: linear-gradient(to bottom, #ff0000, #990000) !important;
+    box-shadow: 
+        0 5px 0 #660000,
+        0 0 15px #ff0000 !important;
 }

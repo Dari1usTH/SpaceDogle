@@ -10,10 +10,6 @@ sa apara coins ( mai rar ) daca le spargi sa iti dea un revives
 
 
 
-
-
-
-
 -----------------------------
-poti sa tragi si cu click
-daca tragi cu space tragi perpendicular , daca tragi cu click tragi in locul unde este mouseul
+built another rocket
+username

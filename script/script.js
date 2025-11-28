@@ -64,6 +64,11 @@ function initGame() {
     
     updateUI();
     
+    const savedUsername = localStorage.getItem('spacedogle_username');
+    if (savedUsername) {
+        playerName.textContent = savedUsername;
+    }
+    
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     gameCanvas.addEventListener('click', shoot);
@@ -137,18 +142,6 @@ function update() {
         ship.y -= ship.speed;
     }
     if ((keys['ArrowDown'] || keys['s']) && ship.y < gameCanvas.height - ship.height/2) {
-        ship.y += ship.speed;
-    }
-    if (keys['ArrowLeft'] && ship.x > ship.width/2) {
-        ship.x -= ship.speed;
-    }
-    if (keys['ArrowRight'] && ship.x < gameCanvas.width - ship.width/2) {
-        ship.x += ship.speed;
-    }
-    if (keys['ArrowUp'] && ship.y > ship.height/2) {
-        ship.y -= ship.speed;
-    }
-    if (keys['ArrowDown'] && ship.y < gameCanvas.height - ship.height/2) {
         ship.y += ship.speed;
     }
 
@@ -255,33 +248,98 @@ function drawStars() {
 function drawShip() {
     ctx.save();
     ctx.translate(ship.x, ship.y);
-    
     ctx.fillStyle = ship.color;
     ctx.beginPath();
     ctx.moveTo(0, -ship.height/2);
-    ctx.lineTo(ship.width/2, ship.height/2);
-    ctx.lineTo(-ship.width/2, ship.height/2);
+    ctx.lineTo(ship.width/3, ship.height/3);
+    ctx.lineTo(ship.width/6, ship.height/2);
+    ctx.lineTo(-ship.width/6, ship.height/2);
+    ctx.lineTo(-ship.width/3, ship.height/3);
     ctx.closePath();
-    ctx.fill();
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(0, -ship.height/4, ship.width/6, 0, Math.PI * 2);
     ctx.fill();
     
     ctx.fillStyle = '#ff9900';
     ctx.beginPath();
-    ctx.arc(-ship.width/4, ship.height/3, ship.width/8, 0, Math.PI * 2);
-    ctx.arc(ship.width/4, ship.height/3, ship.width/8, 0, Math.PI * 2);
+    ctx.moveTo(ship.width/3, ship.height/4);
+    ctx.lineTo(ship.width/2, ship.height/2);
+    ctx.lineTo(ship.width/3, ship.height/2);
+    ctx.closePath();
     ctx.fill();
     
-    if (Math.floor(Date.now() / 100) % 2 === 0) {
-        ctx.fillStyle = '#ff3300';
+    ctx.beginPath();
+    ctx.moveTo(-ship.width/3, ship.height/4);
+    ctx.lineTo(-ship.width/2, ship.height/2);
+    ctx.lineTo(-ship.width/3, ship.height/2);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(ship.width/6, ship.height/2);
+    ctx.lineTo(ship.width/4, ship.height/2 + 15);
+    ctx.lineTo(0, ship.height/2 + 10);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(-ship.width/6, ship.height/2);
+    ctx.lineTo(-ship.width/4, ship.height/2 + 15);
+    ctx.lineTo(0, ship.height/2 + 10);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.fillStyle = 'rgba(200, 230, 255, 0.8)';
+    ctx.beginPath();
+    ctx.ellipse(0, -ship.height/6, ship.width/5, ship.width/8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-ship.width/4, -ship.height/8);
+    ctx.lineTo(-ship.width/4, ship.height/4);
+    ctx.moveTo(ship.width/4, -ship.height/8);
+    ctx.lineTo(ship.width/4, ship.height/4);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#ff9900';
+    ctx.beginPath();
+    ctx.arc(-ship.width/5, ship.height/3, ship.width/8, 0, Math.PI * 2);
+    ctx.arc(ship.width/5, ship.height/3, ship.width/8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    if (Math.floor(Date.now() / 80) % 2 === 0) {
+        const gradient = ctx.createLinearGradient(0, ship.height/2, 0, ship.height/2 + 40);
+        gradient.addColorStop(0, '#ff3300');
+        gradient.addColorStop(0.5, '#ff9900');
+        gradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.ellipse(-ship.width/4, ship.height/2 + 5, ship.width/10, ship.height/4, 0, 0, Math.PI);
-        ctx.ellipse(ship.width/4, ship.height/2 + 5, ship.width/10, ship.height/4, 0, 0, Math.PI);
+        ctx.ellipse(-ship.width/5, ship.height/2 + 5, ship.width/7, 25, 0, 0, Math.PI);
+        ctx.ellipse(ship.width/5, ship.height/2 + 5, ship.width/7, 25, 0, 0, Math.PI);
         ctx.fill();
+        
+        ctx.fillStyle = '#ffff00';
+        for (let i = 0; i < 5; i++) {
+            const offsetX = (Math.random() - 0.5) * 10;
+            const offsetY = Math.random() * 15;
+            const size = Math.random() * 3 + 1;
+            ctx.beginPath();
+            ctx.arc(-ship.width/5 + offsetX, ship.height/2 + 10 + offsetY, size, 0, Math.PI * 2);
+            ctx.arc(ship.width/5 + offsetX, ship.height/2 + 10 + offsetY, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
+    
+    ctx.fillStyle = Math.floor(Date.now() / 500) % 2 === 0 ? '#00ff00' : '#003300';
+    ctx.beginPath();
+    ctx.arc(-ship.width/2.5, -ship.height/8, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = Math.floor(Date.now() / 500) % 2 === 1 ? '#ff0000' : '#330000';
+    ctx.beginPath();
+    ctx.arc(ship.width/2.5, -ship.height/8, 3, 0, Math.PI * 2);
+    ctx.fill();
     
     ctx.restore();
 }
