@@ -95,6 +95,10 @@ let keys = {};
 
 function handleKeyDown(e) {
     keys[e.key] = true;
+    if (e.key === ' ' && gameActive) {
+        e.preventDefault(); 
+        shootWithSpace();
+    }
 }
 
 function handleKeyUp(e) {
@@ -123,6 +127,18 @@ function shoot(e) {
 }
 
 function update() {
+    if ((keys['ArrowLeft'] || keys['a']) && ship.x > ship.width/2) {
+        ship.x -= ship.speed;
+    }
+    if ((keys['ArrowRight'] || keys['d']) && ship.x < gameCanvas.width - ship.width/2) {
+        ship.x += ship.speed;
+    }
+    if ((keys['ArrowUp'] || keys['w']) && ship.y > ship.height/2) {
+        ship.y -= ship.speed;
+    }
+    if ((keys['ArrowDown'] || keys['s']) && ship.y < gameCanvas.height - ship.height/2) {
+        ship.y += ship.speed;
+    }
     if (keys['ArrowLeft'] && ship.x > ship.width/2) {
         ship.x -= ship.speed;
     }
@@ -306,7 +322,7 @@ function drawAsteroids() {
         }
         ctx.closePath();
         ctx.fill();
-        
+         
         ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.beginPath();
         ctx.arc(-asteroid.radius/3, -asteroid.radius/4, asteroid.radius/4, 0, Math.PI * 2);
@@ -330,4 +346,16 @@ function gameLoop() {
     draw();
     
     requestAnimationFrame(gameLoop);
+}
+
+function shootWithSpace() {
+    if (!gameActive) return;
+    bullets.push({
+        x: ship.x,
+        y: ship.y,
+        vx: 0,
+        vy: -10, 
+        radius: 4,
+        color: '#ff00ff'
+    });
 }
