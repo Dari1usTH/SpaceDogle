@@ -48,9 +48,9 @@ let asteroidSpawnRate = 60;
 let asteroidFrameCount = 0;
 
 playButton.addEventListener('click', startGame);
-resetButton.addEventListener('click', () => alert('Buton Reset - Funcționalitate în dezvoltare'));
-settingsButton.addEventListener('click', () => alert('Buton Setări - Funcționalitate în dezvoltare'));
-extraButton.addEventListener('click', () => alert('Buton Bonus - Funcționalitate în dezvoltare'));
+resetButton.addEventListener('click', () => alert('Reset Button - Feature in development'));
+settingsButton.addEventListener('click', () => alert('Settings Button - Feature in development'));
+extraButton.addEventListener('click', () => alert('Bonus Button - Feature in development'));
 restartButton.addEventListener('click', restartGame);
 
 function initGame() {

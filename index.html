@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpaceDogle - Joc Arcade</title>
+    <title>SpaceDogle - Arcade Game</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
@@ -16,7 +16,7 @@
                 <button id="playButton" class="arcadeButton">PLAY</button>
                 <div class="buttonRow">
                     <button id="resetButton" class="smallButton">Reset</button>
-                    <button id="settingsButton" class="smallButton">Setări</button>
+                    <button id="settingsButton" class="smallButton">Settings</button>
                     <button id="extraButton" class="smallButton">Bonus</button>
                 </div>
             </div>
@@ -25,13 +25,13 @@
         <div id="gameScreen">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
             <div class="gameUI">
-                <div class="uiElement">Scor: <span id="scoreValue">0</span></div>
-                <div class="uiElement">Viață: <span id="livesValue">3</span></div>
+                <div class="uiElement">Score: <span id="scoreValue">0</span></div>
+                <div class="uiElement">Lives: <span id="livesValue">3</span></div>
             </div>
             <div id="gameOverScreen">
                 <div class="gameOverText">GAME OVER</div>
-                <div class="finalScore">Scor: <span id="finalScore">0</span></div>
-                <button id="restartButton" class="arcadeButton">JOACĂ DIN NOU</button>
+                <div class="finalScore">Score: <span id="finalScore">0</span></div>
+                <button id="restartButton" class="arcadeButton">PLAY AGAIN</button>
             </div>
         </div>
     </div>
