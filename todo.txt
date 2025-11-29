@@ -1,14 +1,12 @@
-best score
+
 stele de adaugat nu alea care sunt acum
 sounds
 hit a new high score : +3 revives
 loose unse a revive
-a better rochet
 mai putini asteroizi de o data 
 sa apara coins ( mai rar ) daca le spargi sa iti dea un revives
 turbo shoot 
-do not move shoot unstopable bug
+
 
 -----------------------------
-built another rocket
-username
+best score

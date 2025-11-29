@@ -31,6 +31,7 @@ const playerName = document.getElementById('playerName');
 createStars(menuStars, 150);
 
 let ctx;
+let bestScore = 0;
 let gameActive = false;
 let score = 0;
 let lives = 3;
@@ -74,6 +75,8 @@ function initGame() {
     if (savedUsername) {
         playerName.textContent = savedUsername;
     }
+    bestScore = parseInt(localStorage.getItem('spacedogle_bestScore')) || 0;
+    document.getElementById('bestScoreValue').textContent = bestScore;
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     gameCanvas.addEventListener('mousedown', handleMouseDown);
@@ -100,7 +103,17 @@ function restartGame() {
     backButton.style.display = 'block';
     const gameUI = document.querySelector('.gameUI');
     gameUI.style.left = '150px';
-    initGame();
+
+    score = 0;
+    lives = 3;
+    bullets = [];
+    asteroids = [];
+    asteroidFrameCount = 0;
+    asteroidSpawnRate = 60;
+    
+    updateUI();
+    gameActive = true;
+    requestAnimationFrame(gameLoop);
 }
 
 function goBackToMenu() {
@@ -125,6 +138,11 @@ function goBackToMenu() {
 function updateUI() {
     scoreValue.textContent = score;
     livesValue.textContent = lives;
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('spacedogle_bestScore', bestScore);
+        document.getElementById('bestScoreValue').textContent = bestScore;
+    }
 }
 
 let keys = {};
@@ -475,4 +493,4 @@ function gameLoop() {
     update();
     draw();
     requestAnimationFrame(gameLoop);
-}
+}  
