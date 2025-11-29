@@ -95,6 +95,9 @@ function startGame() {
 function restartGame() {
     gameOverScreen.style.display = 'none';
     backButton.style.display = 'block';
+    const gameUI = document.querySelector('.gameUI');
+    gameUI.style.left = '150px';
+    
     initGame();
 }
 
