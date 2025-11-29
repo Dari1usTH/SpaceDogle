@@ -26,6 +26,7 @@ const livesValue = document.getElementById('livesValue');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const finalScore = document.getElementById('finalScore');
 const menuStars = document.getElementById('menuStars');
+const playerName = document.getElementById('playerName');
 
 createStars(menuStars, 150);
 
@@ -48,6 +49,12 @@ let asteroids = [];
 let asteroidSpawnRate = 60;
 let asteroidFrameCount = 0;
 
+let lastShotTime = 0;
+const fireRateMs = 200;
+let mouseDown = false;
+let mouseX = 0;
+let mouseY = 0;
+
 playButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', () => alert('Reset Button - Feature in development'));
 settingsButton.addEventListener('click', () => alert('Settings Button - Feature in development'));
@@ -57,24 +64,21 @@ backButton.addEventListener('click', goBackToMenu);
 
 function initGame() {
     ctx = gameCanvas.getContext('2d');
-    
     score = 0;
     lives = 3;
     bullets = [];
     asteroids = [];
     asteroidFrameCount = 0;
-    
     updateUI();
-    
     const savedUsername = localStorage.getItem('spacedogle_username');
     if (savedUsername) {
         playerName.textContent = savedUsername;
     }
-    
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
-    gameCanvas.addEventListener('click', shoot);
-    
+    gameCanvas.addEventListener('mousedown', handleMouseDown);
+    gameCanvas.addEventListener('mouseup', handleMouseUp);
+    gameCanvas.addEventListener('mousemove', handleMouseMove);
     gameActive = true;
     requestAnimationFrame(gameLoop);
 }
@@ -84,8 +88,7 @@ function startGame() {
     gameScreen.style.display = 'flex';
     backButton.style.display = 'block';
     const gameUI = document.querySelector('.gameUI');
-    gameUI.style.left = '150px'; 
-    
+    gameUI.style.left = '150px';
     setTimeout(() => {
         gameScreen.style.opacity = 1;
         initGame();
@@ -97,7 +100,6 @@ function restartGame() {
     backButton.style.display = 'block';
     const gameUI = document.querySelector('.gameUI');
     gameUI.style.left = '150px';
-    
     initGame();
 }
 
@@ -113,6 +115,11 @@ function goBackToMenu() {
     gameOverScreen.style.display = 'none';
     menuScreen.style.display = 'flex';
     updateUI();
+    document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('keyup', handleKeyUp);
+    gameCanvas.removeEventListener('mousedown', handleMouseDown);
+    gameCanvas.removeEventListener('mouseup', handleMouseUp);
+    gameCanvas.removeEventListener('mousemove', handleMouseMove);
 }
 
 function updateUI() {
@@ -125,8 +132,10 @@ let keys = {};
 function handleKeyDown(e) {
     keys[e.key] = true;
     if (e.key === ' ' && gameActive) {
-        e.preventDefault(); 
-        shootWithSpace();
+        e.preventDefault();
+        if (canShootNow()) {
+            shootWithSpace();
+        }
     }
 }
 
@@ -134,17 +143,35 @@ function handleKeyUp(e) {
     keys[e.key] = false;
 }
 
+function handleMouseDown(e) {
+    if (!gameActive) return;
+    mouseDown = true;
+    updateMousePosFromEvent(e);
+    tryShootAt(mouseX, mouseY);
+}
+
+function handleMouseUp() {
+    mouseDown = false;
+}
+
+function handleMouseMove(e) {
+    updateMousePosFromEvent(e);
+}
+
+function updateMousePosFromEvent(e) {
+    const rect = gameCanvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+}
+
 function shoot(e) {
     if (!gameActive) return;
-    
     const rect = gameCanvas.getBoundingClientRect();
     const targetX = e.clientX - rect.left;
     const targetY = e.clientY - rect.top;
-    
     const dx = targetX - ship.x;
     const dy = targetY - ship.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
+    const distance = Math.sqrt(dx * dx + dy * dy) || 1;
     bullets.push({
         x: ship.x,
         y: ship.y,
@@ -155,26 +182,71 @@ function shoot(e) {
     });
 }
 
+function canShootNow() {
+    return Date.now() - lastShotTime >= fireRateMs;
+}
+
+function doShootTowards(targetX, targetY) {
+    const dx = targetX - ship.x;
+    const dy = targetY - ship.y;
+    const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+    bullets.push({
+        x: ship.x,
+        y: ship.y,
+        vx: (dx / distance) * 10,
+        vy: (dy / distance) * 10,
+        radius: 4,
+        color: '#ff00ff'
+    });
+    lastShotTime = Date.now();
+}
+
+function tryShootAt(tx, ty) {
+    if (!gameActive) return;
+    if (!canShootNow()) return;
+    doShootTowards(tx, ty);
+}
+
+function shootWithSpace() {
+    if (!gameActive) return;
+    if (!canShootNow()) return;
+    bullets.push({
+        x: ship.x,
+        y: ship.y,
+        vx: 0,
+        vy: -10,
+        radius: 4,
+        color: '#ff00ff'
+    });
+    lastShotTime = Date.now();
+}
+
 function update() {
-    if ((keys['ArrowLeft'] || keys['a']) && ship.x > ship.width/2) {
+    if ((keys['ArrowLeft'] || keys['a']) && ship.x > ship.width / 2) {
         ship.x -= ship.speed;
     }
-    if ((keys['ArrowRight'] || keys['d']) && ship.x < gameCanvas.width - ship.width/2) {
+    if ((keys['ArrowRight'] || keys['d']) && ship.x < gameCanvas.width - ship.width / 2) {
         ship.x += ship.speed;
     }
-    if ((keys['ArrowUp'] || keys['w']) && ship.y > ship.height/2) {
+    if ((keys['ArrowUp'] || keys['w']) && ship.y > ship.height / 2) {
         ship.y -= ship.speed;
     }
-    if ((keys['ArrowDown'] || keys['s']) && ship.y < gameCanvas.height - ship.height/2) {
+    if ((keys['ArrowDown'] || keys['s']) && ship.y < gameCanvas.height - ship.height / 2) {
         ship.y += ship.speed;
+    }
+
+    if ((keys[' '] || keys['Space']) && gameActive) {
+        if (canShootNow()) shootWithSpace();
+    }
+
+    if (mouseDown && gameActive) {
+        tryShootAt(mouseX, mouseY);
     }
 
     for (let i = bullets.length - 1; i >= 0; i--) {
         bullets[i].x += bullets[i].vx;
         bullets[i].y += bullets[i].vy;
-        
-        if (bullets[i].x < 0 || bullets[i].x > gameCanvas.width || 
-            bullets[i].y < 0 || bullets[i].y > gameCanvas.height) {
+        if (bullets[i].x < 0 || bullets[i].x > gameCanvas.width || bullets[i].y < 0 || bullets[i].y > gameCanvas.height) {
             bullets.splice(i, 1);
         }
     }
@@ -183,7 +255,6 @@ function update() {
     if (asteroidFrameCount >= asteroidSpawnRate) {
         spawnAsteroid();
         asteroidFrameCount = 0;
-        
         if (asteroidSpawnRate > 20) {
             asteroidSpawnRate -= 0.5;
         }
@@ -193,7 +264,6 @@ function update() {
         asteroids[i].x += asteroids[i].vx;
         asteroids[i].y += asteroids[i].vy;
         asteroids[i].rotation += asteroids[i].rotationSpeed;
-        
         if (asteroids[i].y > gameCanvas.height + 50) {
             asteroids.splice(i, 1);
         }
@@ -204,7 +274,6 @@ function update() {
             const dx = asteroids[i].x - bullets[j].x;
             const dy = asteroids[i].y - bullets[j].y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            
             if (distance < asteroids[i].radius + bullets[j].radius) {
                 asteroids.splice(i, 1);
                 bullets.splice(j, 1);
@@ -219,12 +288,10 @@ function update() {
         const dx = asteroids[i].x - ship.x;
         const dy = asteroids[i].y - ship.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
         if (distance < asteroids[i].radius + Math.max(ship.width, ship.height) / 2) {
             asteroids.splice(i, 1);
             lives--;
             updateUI();
-            
             if (lives <= 0) {
                 gameOver();
             }
@@ -250,7 +317,6 @@ function spawnAsteroid() {
 function draw() {
     ctx.fillStyle = '#000015';
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-    
     drawStars();
     drawShip();
     drawBullets();
@@ -274,97 +340,84 @@ function drawShip() {
     ctx.translate(ship.x, ship.y);
     ctx.fillStyle = ship.color;
     ctx.beginPath();
-    ctx.moveTo(0, -ship.height/2);
-    ctx.lineTo(ship.width/3, ship.height/3);
-    ctx.lineTo(ship.width/6, ship.height/2);
-    ctx.lineTo(-ship.width/6, ship.height/2);
-    ctx.lineTo(-ship.width/3, ship.height/3);
+    ctx.moveTo(0, -ship.height / 2);
+    ctx.lineTo(ship.width / 3, ship.height / 3);
+    ctx.lineTo(ship.width / 6, ship.height / 2);
+    ctx.lineTo(-ship.width / 6, ship.height / 2);
+    ctx.lineTo(-ship.width / 3, ship.height / 3);
     ctx.closePath();
     ctx.fill();
-    
     ctx.fillStyle = '#ff9900';
     ctx.beginPath();
-    ctx.moveTo(ship.width/3, ship.height/4);
-    ctx.lineTo(ship.width/2, ship.height/2);
-    ctx.lineTo(ship.width/3, ship.height/2);
+    ctx.moveTo(ship.width / 3, ship.height / 4);
+    ctx.lineTo(ship.width / 2, ship.height / 2);
+    ctx.lineTo(ship.width / 3, ship.height / 2);
     ctx.closePath();
     ctx.fill();
-    
     ctx.beginPath();
-    ctx.moveTo(-ship.width/3, ship.height/4);
-    ctx.lineTo(-ship.width/2, ship.height/2);
-    ctx.lineTo(-ship.width/3, ship.height/2);
+    ctx.moveTo(-ship.width / 3, ship.height / 4);
+    ctx.lineTo(-ship.width / 2, ship.height / 2);
+    ctx.lineTo(-ship.width / 3, ship.height / 2);
     ctx.closePath();
     ctx.fill();
-    
     ctx.beginPath();
-    ctx.moveTo(ship.width/6, ship.height/2);
-    ctx.lineTo(ship.width/4, ship.height/2 + 15);
-    ctx.lineTo(0, ship.height/2 + 10);
+    ctx.moveTo(ship.width / 6, ship.height / 2);
+    ctx.lineTo(ship.width / 4, ship.height / 2 + 15);
+    ctx.lineTo(0, ship.height / 2 + 10);
     ctx.closePath();
     ctx.fill();
-    
     ctx.beginPath();
-    ctx.moveTo(-ship.width/6, ship.height/2);
-    ctx.lineTo(-ship.width/4, ship.height/2 + 15);
-    ctx.lineTo(0, ship.height/2 + 10);
+    ctx.moveTo(-ship.width / 6, ship.height / 2);
+    ctx.lineTo(-ship.width / 4, ship.height / 2 + 15);
+    ctx.lineTo(0, ship.height / 2 + 10);
     ctx.closePath();
     ctx.fill();
-    
     ctx.fillStyle = 'rgba(200, 230, 255, 0.8)';
     ctx.beginPath();
-    ctx.ellipse(0, -ship.height/6, ship.width/5, ship.width/8, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, -ship.height / 6, ship.width / 5, ship.width / 8, 0, 0, Math.PI * 2);
     ctx.fill();
-    
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(-ship.width/4, -ship.height/8);
-    ctx.lineTo(-ship.width/4, ship.height/4);
-    ctx.moveTo(ship.width/4, -ship.height/8);
-    ctx.lineTo(ship.width/4, ship.height/4);
+    ctx.moveTo(-ship.width / 4, -ship.height / 8);
+    ctx.lineTo(-ship.width / 4, ship.height / 4);
+    ctx.moveTo(ship.width / 4, -ship.height / 8);
+    ctx.lineTo(ship.width / 4, ship.height / 4);
     ctx.stroke();
-    
     ctx.fillStyle = '#ff9900';
     ctx.beginPath();
-    ctx.arc(-ship.width/5, ship.height/3, ship.width/8, 0, Math.PI * 2);
-    ctx.arc(ship.width/5, ship.height/3, ship.width/8, 0, Math.PI * 2);
+    ctx.arc(-ship.width / 5, ship.height / 3, ship.width / 8, 0, Math.PI * 2);
+    ctx.arc(ship.width / 5, ship.height / 3, ship.width / 8, 0, Math.PI * 2);
     ctx.fill();
-    
     if (Math.floor(Date.now() / 80) % 2 === 0) {
-        const gradient = ctx.createLinearGradient(0, ship.height/2, 0, ship.height/2 + 40);
+        const gradient = ctx.createLinearGradient(0, ship.height / 2, 0, ship.height / 2 + 40);
         gradient.addColorStop(0, '#ff3300');
         gradient.addColorStop(0.5, '#ff9900');
         gradient.addColorStop(1, 'transparent');
-        
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.ellipse(-ship.width/5, ship.height/2 + 5, ship.width/7, 25, 0, 0, Math.PI);
-        ctx.ellipse(ship.width/5, ship.height/2 + 5, ship.width/7, 25, 0, 0, Math.PI);
+        ctx.ellipse(-ship.width / 5, ship.height / 2 + 5, ship.width / 7, 25, 0, 0, Math.PI);
+        ctx.ellipse(ship.width / 5, ship.height / 2 + 5, ship.width / 7, 25, 0, 0, Math.PI);
         ctx.fill();
-        
         ctx.fillStyle = '#ffff00';
         for (let i = 0; i < 5; i++) {
             const offsetX = (Math.random() - 0.5) * 10;
             const offsetY = Math.random() * 15;
             const size = Math.random() * 3 + 1;
             ctx.beginPath();
-            ctx.arc(-ship.width/5 + offsetX, ship.height/2 + 10 + offsetY, size, 0, Math.PI * 2);
-            ctx.arc(ship.width/5 + offsetX, ship.height/2 + 10 + offsetY, size, 0, Math.PI * 2);
+            ctx.arc(-ship.width / 5 + offsetX, ship.height / 2 + 10 + offsetY, size, 0, Math.PI * 2);
+            ctx.arc(ship.width / 5 + offsetX, ship.height / 2 + 10 + offsetY, size, 0, Math.PI * 2);
             ctx.fill();
         }
     }
-    
     ctx.fillStyle = Math.floor(Date.now() / 500) % 2 === 0 ? '#00ff00' : '#003300';
     ctx.beginPath();
-    ctx.arc(-ship.width/2.5, -ship.height/8, 3, 0, Math.PI * 2);
+    ctx.arc(-ship.width / 2.5, -ship.height / 8, 3, 0, Math.PI * 2);
     ctx.fill();
-    
     ctx.fillStyle = Math.floor(Date.now() / 500) % 2 === 1 ? '#ff0000' : '#330000';
     ctx.beginPath();
-    ctx.arc(ship.width/2.5, -ship.height/8, 3, 0, Math.PI * 2);
+    ctx.arc(ship.width / 2.5, -ship.height / 8, 3, 0, Math.PI * 2);
     ctx.fill();
-    
     ctx.restore();
 }
 
@@ -374,7 +427,6 @@ function drawBullets() {
         ctx.beginPath();
         ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
         ctx.fill();
-        
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         ctx.beginPath();
         ctx.arc(bullet.x, bullet.y, bullet.radius / 2, 0, Math.PI * 2);
@@ -387,7 +439,6 @@ function drawAsteroids() {
         ctx.save();
         ctx.translate(asteroid.x, asteroid.y);
         ctx.rotate(asteroid.rotation);
-        
         ctx.fillStyle = asteroid.color;
         ctx.beginPath();
         for (let i = 0; i < 8; i++) {
@@ -395,7 +446,6 @@ function drawAsteroids() {
             const radiusVariation = 0.7 + Math.random() * 0.3;
             const x = Math.cos(angle) * asteroid.radius * radiusVariation;
             const y = Math.sin(angle) * asteroid.radius * radiusVariation;
-            
             if (i === 0) {
                 ctx.moveTo(x, y);
             } else {
@@ -404,13 +454,11 @@ function drawAsteroids() {
         }
         ctx.closePath();
         ctx.fill();
-         
         ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.beginPath();
-        ctx.arc(-asteroid.radius/3, -asteroid.radius/4, asteroid.radius/4, 0, Math.PI * 2);
-        ctx.arc(asteroid.radius/3, asteroid.radius/4, asteroid.radius/5, 0, Math.PI * 2);
+        ctx.arc(-asteroid.radius / 3, -asteroid.radius / 4, asteroid.radius / 4, 0, Math.PI * 2);
+        ctx.arc(asteroid.radius / 3, asteroid.radius / 4, asteroid.radius / 5, 0, Math.PI * 2);
         ctx.fill();
-        
         ctx.restore();
     });
 }
@@ -424,21 +472,7 @@ function gameOver() {
 
 function gameLoop() {
     if (!gameActive) return;
-    
     update();
     draw();
-    
     requestAnimationFrame(gameLoop);
-}
-
-function shootWithSpace() {
-    if (!gameActive) return;
-    bullets.push({
-        x: ship.x,
-        y: ship.y,
-        vx: 0,
-        vy: -10, 
-        radius: 4,
-        color: '#ff00ff'
-    });
 }

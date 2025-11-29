@@ -1,4 +1,3 @@
-username menu
 best score
 stele de adaugat nu alea care sunt acum
 sounds
