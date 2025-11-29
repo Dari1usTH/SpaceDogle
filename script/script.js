@@ -19,6 +19,7 @@ const resetButton = document.getElementById('resetButton');
 const settingsButton = document.getElementById('settingsButton');
 const extraButton = document.getElementById('extraButton');
 const restartButton = document.getElementById('restartButton');
+const backButton = document.getElementById('backButton');
 const gameCanvas = document.getElementById('gameCanvas');
 const scoreValue = document.getElementById('scoreValue');
 const livesValue = document.getElementById('livesValue');
@@ -52,6 +53,7 @@ resetButton.addEventListener('click', () => alert('Reset Button - Feature in dev
 settingsButton.addEventListener('click', () => alert('Settings Button - Feature in development'));
 extraButton.addEventListener('click', () => alert('Bonus Button - Feature in development'));
 restartButton.addEventListener('click', restartGame);
+backButton.addEventListener('click', goBackToMenu);
 
 function initGame() {
     ctx = gameCanvas.getContext('2d');
@@ -80,6 +82,10 @@ function initGame() {
 function startGame() {
     menuScreen.style.display = 'none';
     gameScreen.style.display = 'flex';
+    backButton.style.display = 'block';
+    const gameUI = document.querySelector('.gameUI');
+    gameUI.style.left = '150px'; 
+    
     setTimeout(() => {
         gameScreen.style.opacity = 1;
         initGame();
@@ -88,7 +94,22 @@ function startGame() {
 
 function restartGame() {
     gameOverScreen.style.display = 'none';
+    backButton.style.display = 'block';
     initGame();
+}
+
+function goBackToMenu() {
+    gameActive = false;
+    score = 0;
+    lives = 3;
+    bullets = [];
+    asteroids = [];
+    asteroidFrameCount = 0;
+    gameScreen.style.display = 'none';
+    gameScreen.style.opacity = 0;
+    gameOverScreen.style.display = 'none';
+    menuScreen.style.display = 'flex';
+    updateUI();
 }
 
 function updateUI() {
@@ -224,7 +245,7 @@ function spawnAsteroid() {
 }
 
 function draw() {
-    ctx.fillStyle = 'rgba(10, 10, 40, 0.2)';
+    ctx.fillStyle = '#000015';
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
     drawStars();
@@ -395,6 +416,7 @@ function gameOver() {
     gameActive = false;
     finalScore.textContent = score;
     gameOverScreen.style.display = 'flex';
+    backButton.style.display = 'block';
 }
 
 function gameLoop() {
