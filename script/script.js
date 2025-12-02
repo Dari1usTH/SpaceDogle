@@ -27,8 +27,9 @@ const gameOverScreen = document.getElementById('gameOverScreen');
 const finalScore = document.getElementById('finalScore');
 const menuStars = document.getElementById('menuStars');
 const playerName = document.getElementById('playerName');
-const reviveButton = document.getElementById('reviveButton');
 const reviveValue = document.getElementById('reviveValue');
+const reviveGameOverButton = document.getElementById('reviveGameOverButton');
+const reviveCount = document.getElementById('reviveCount');
 
 createStars(menuStars, 150);
 
@@ -67,23 +68,14 @@ playButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', () => alert('Reset Button - Feature in development'));
 settingsButton.addEventListener('click', () => alert('Settings Button - Feature in development'));
 extraButton.addEventListener('click', () => alert('Bonus Button - Feature in development'));
-reviveButton.addEventListener('click', useRevive);
-
-restartButton.addEventListener('click', function() {
-    if (revives > 0) {
-        useRevive();
-    } else {
-        restartGame();
-    }
-});
-
+restartButton.addEventListener('click', restartGame);
+reviveGameOverButton.addEventListener('click', useRevive);
 backButton.addEventListener('click', goBackToMenu);
 
 function startGame() {
     menuScreen.style.display = 'none';
     gameScreen.style.display = 'flex';
     backButton.style.display = 'block';
-    reviveButton.style.display = 'none';
     const gameUI = document.querySelector('.gameUI');
     gameUI.style.left = '150px';
     setTimeout(() => {
@@ -188,7 +180,6 @@ function goBackToMenu() {
     asteroidFrameCount = 0;
     gameScreen.style.display = 'none';
     gameScreen.style.opacity = 0;
-    reviveButton.style.display = 'none';
     gameOverScreen.style.display = 'none';
     menuScreen.style.display = 'flex';
     updateUI();
@@ -203,12 +194,12 @@ function updateUI() {
     scoreValue.textContent = score;
     livesValue.textContent = lives;
     reviveValue.textContent = revives;
-    reviveButton.textContent = `REVIVE (${revives})`;
+    reviveCount.textContent = revives;
     
     if (revives <= 0) {
-        reviveButton.disabled = true;
+        reviveGameOverButton.disabled = true;
     } else {
-        reviveButton.disabled = false;
+        reviveGameOverButton.disabled = false;
     }
     
     if (score > bestScore && !reviveGivenOnHighScore && revives === 0) {
@@ -576,12 +567,10 @@ function gameOver() {
     finalScore.textContent = score;
     
     if (revives > 0) {
-        restartButton.textContent = `REVIVE (${revives})`;
+        reviveGameOverButton.style.display = 'block';
     } else {
-        restartButton.textContent = 'PLAY AGAIN';
+        reviveGameOverButton.style.display = 'none';
     }
-    
-    reviveButton.style.display = 'none';
     
     gameOverScreen.style.display = 'flex';
     backButton.style.display = 'block';
