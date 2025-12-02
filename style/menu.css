@@ -272,3 +272,27 @@ body {
         0 5px 0 #660000,
         0 0 15px #ff0000 !important;
 }
+
+.revive-feedback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: #ff9900;
+    text-shadow: 0 0 20px #ff9900;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+.shield-active {
+    animation: shieldPulse 1s infinite;
+}
+
+@keyframes shieldPulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}

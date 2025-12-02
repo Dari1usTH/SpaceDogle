@@ -22,6 +22,52 @@
     box-shadow: 0 0 10px #00ccff;
 }
 
+.reviveButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: linear-gradient(to bottom, #ff9900, #cc6600);
+    border: 2px solid #ff9900;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 
+        0 4px 0 #996600,
+        0 0 10px #ff9900;
+    transition: all 0.1s;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: none;
+}
+
+.reviveButton:hover {
+    transform: translateY(2px);
+    box-shadow: 
+        0 2px 0 #996600,
+        0 0 15px #ff9900;
+    background: linear-gradient(to bottom, #ffaa00, #dd7700);
+}
+
+.reviveButton:active {
+    transform: translateY(4px);
+    box-shadow: 
+        0 0 0 #996600,
+        0 0 20px #ff9900;
+}
+
+.reviveButton:disabled {
+    background: linear-gradient(to bottom, #666666, #333333);
+    border-color: #666666;
+    box-shadow: 0 4px 0 #333333;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 .backButton {
     position: fixed;              
     top: 10px;                    
