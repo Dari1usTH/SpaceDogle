@@ -1,6 +1,6 @@
 window.addEventListener('load', () => {
     if (sessionStorage.getItem('session_revives') === null) {
-        sessionStorage.setItem('session_revives', '2'); 
+        sessionStorage.setItem('session_revives', '2');
     }
     revives = parseInt(sessionStorage.getItem('session_revives'), 10) || 0;
     updateUI();
@@ -11,7 +11,7 @@ function createStars(container, count) {
     for (let i = 0; i < count; i++) {
         const star = document.createElement('div');
         star.className = 'star';
-        const size = Math.random() * 2 + 1; 
+        const size = Math.random() * 2 + 1;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
         star.style.left = Math.random() * 100 + '%';
@@ -112,7 +112,7 @@ function initGame() {
     bullets = [];
     asteroids = [];
     asteroidFrameCount = 0;
-    asteroidSpawnRate = 60;
+    asteroidSpawnRate = 80;
     updateUI();
     
     const savedUsername = localStorage.getItem('spacedogle_username');
@@ -396,11 +396,31 @@ function update() {
             const dx = asteroids[i].x - bullets[j].x;
             const dy = asteroids[i].y - bullets[j].y;
             const distance = Math.sqrt(dx * dx + dy * dy);
+            
             if (distance < asteroids[i].radius + bullets[j].radius) {
-                asteroids.splice(i, 1);
-                bullets.splice(j, 1);
-                score += 10;
-                updateUI();
+                if (asteroids[i].type === 'special') {
+                    asteroids[i].hits++;
+                    bullets.splice(j, 1);
+                    
+                    if (asteroids[i].hits >= asteroids[i].hitsNeeded) {
+                        asteroids.splice(i, 1);
+                        score += 50;
+                        lives++;
+                        updateUI();
+                    }
+                } else if (asteroids[i].type === 'powerup') {
+                    asteroids.splice(i, 1);
+                    bullets.splice(j, 1);
+                    score += 25;
+                    revives++;
+                    sessionStorage.setItem('session_revives', revives);
+                    updateUI();
+                } else {
+                    asteroids.splice(i, 1);
+                    bullets.splice(j, 1);
+                    score += 10;
+                    updateUI();
+                }
                 break;
             }
         }
@@ -425,17 +445,51 @@ function update() {
 }
 
 function spawnAsteroid() {
-    const radius = Math.random() * 30 + 20;
-    asteroids.push({
-        x: Math.random() * (gameCanvas.width - radius * 2) + radius,
-        y: -radius,
-        vx: (Math.random() - 0.5) * 2,
-        vy: Math.random() * 2 + 1,
-        radius: radius,
-        rotation: 0,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
-        color: `hsl(${Math.random() * 60 + 20}, 70%, 50%)`
-    });
+    const chance = Math.random();
+    
+    if (chance < 0.075) {
+        const radius = Math.random() * 20 + 50;
+        const hitsNeeded = Math.floor(Math.random() * 2) + 3;
+        asteroids.push({
+            x: Math.random() * (gameCanvas.width - radius * 2) + radius,
+            y: -radius,
+            vx: (Math.random() - 0.5) * 1,
+            vy: Math.random() * 1.5 + 0.5,
+            radius: radius,
+            rotation: 0,
+            rotationSpeed: (Math.random() - 0.5) * 0.05,
+            color: `hsl(${Math.random() * 30 + 10}, 90%, 50%)`,
+            type: 'special',
+            hits: 0,
+            hitsNeeded: hitsNeeded
+        });
+    } else if (chance < 0.125) {
+        const radius = Math.random() * 5 + 10;
+        asteroids.push({
+            x: Math.random() * (gameCanvas.width - radius * 2) + radius,
+            y: -radius,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: Math.random() * 0.8 + 0.2,
+            radius: radius,
+            rotation: 0,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            color: '#ffff00',
+            type: 'powerup'
+        });
+    } else {
+        const radius = Math.random() * 30 + 20;
+        asteroids.push({
+            x: Math.random() * (gameCanvas.width - radius * 2) + radius,
+            y: -radius,
+            vx: (Math.random() - 0.5) * 2,
+            vy: Math.random() * 2 + 1,
+            radius: radius,
+            rotation: 0,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            color: `hsl(${Math.random() * 60 + 20}, 70%, 50%)`,
+            type: 'normal'
+        });
+    }
 }
 
 function gameLoop() {
@@ -471,7 +525,7 @@ function drawStars() {
                 y: Math.random() * gameCanvas.height,
                 size: Math.random() * 2 + 0.5,
                 opacity: Math.random() * 0.7 + 0.3,
-                speed: Math.random() * 0.3 + 0.1 
+                speed: Math.random() * 0.3 + 0.1
             });
         }
     }
@@ -604,30 +658,107 @@ function drawBullets() {
 
 function drawAsteroids() {
     asteroids.forEach(asteroid => {
-        ctx.save();
-        ctx.translate(asteroid.x, asteroid.y);
-        ctx.rotate(asteroid.rotation);
-        ctx.fillStyle = asteroid.color;
-        ctx.beginPath();
-        for (let i = 0; i < 8; i++) {
-            const angle = (i / 8) * Math.PI * 2;
-            const radiusVariation = 0.7 + Math.random() * 0.3;
-            const x = Math.cos(angle) * asteroid.radius * radiusVariation;
-            const y = Math.sin(angle) * asteroid.radius * radiusVariation;
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (asteroid.type === 'powerup') {
+            ctx.save();
+            ctx.translate(asteroid.x, asteroid.y);
+            ctx.rotate(asteroid.rotation);
+            
+            ctx.fillStyle = asteroid.color;
+            ctx.beginPath();
+            
+            for (let i = 0; i < 5; i++) {
+                const angle = (i / 5) * Math.PI * 2;
+                const radius = asteroid.radius;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(0, 0, asteroid.radius * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                const angle = (i / 5) * Math.PI * 2;
+                const x1 = Math.cos(angle) * (asteroid.radius * 0.4);
+                const y1 = Math.sin(angle) * (asteroid.radius * 0.4);
+                const x2 = Math.cos(angle) * (asteroid.radius * 0.8);
+                const y2 = Math.sin(angle) * (asteroid.radius * 0.8);
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        } else if (asteroid.type === 'special') {
+            ctx.save();
+            ctx.translate(asteroid.x, asteroid.y);
+            ctx.rotate(asteroid.rotation);
+            ctx.fillStyle = asteroid.color;
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const radiusVariation = 0.7 + Math.random() * 0.3;
+                const x = Math.cos(angle) * asteroid.radius * radiusVariation;
+                const y = Math.sin(angle) * asteroid.radius * radiusVariation;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(0, 0, asteroid.radius * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${asteroid.hitsNeeded - asteroid.hits}`, 0, 0);
+            
+            ctx.restore();
+        } else {
+            ctx.save();
+            ctx.translate(asteroid.x, asteroid.y);
+            ctx.rotate(asteroid.rotation);
+            ctx.fillStyle = asteroid.color;
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const radiusVariation = 0.7 + Math.random() * 0.3;
+                const x = Math.cos(angle) * asteroid.radius * radiusVariation;
+                const y = Math.sin(angle) * asteroid.radius * radiusVariation;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(-asteroid.radius / 3, -asteroid.radius / 4, asteroid.radius / 4, 0, Math.PI * 2);
+            ctx.arc(asteroid.radius / 3, asteroid.radius / 4, asteroid.radius / 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
         }
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        ctx.beginPath();
-        ctx.arc(-asteroid.radius / 3, -asteroid.radius / 4, asteroid.radius / 4, 0, Math.PI * 2);
-        ctx.arc(asteroid.radius / 3, asteroid.radius / 4, asteroid.radius / 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
     });
 }
 
