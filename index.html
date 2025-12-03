@@ -35,14 +35,22 @@
 
         <div id="gameScreen">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
-            <button id="backButton" class="backButton">← Back</button>
+            <div class="topButtons">
+                <button id="backButton" class="backButton">← Back</button>
+                <button id="pauseButton" class="pauseButton">||</button>
+            </div>
             
-            <div class="gameUI">
-                <div class="uiElement">Score: <span id="scoreValue">0</span></div>
-                <div class="uiElement">Lives: <span id="livesValue">3</span></div>
-                <div class="uiElement">Best: <span id="bestScoreValue">0</span></div>
-                <div class="uiElement">Player: <span id="playerName">Guest</span></div>
-                <div class="uiElement">Revive: <span id="reviveValue">2</span></div>
+            <div class="gameUICenter">
+                <div class="uiElementCenter">Score: <span id="scoreValue">0</span></div>
+                <div class="uiElementCenter">Lives: <span id="livesValue">3</span></div>
+                <div class="uiElementCenter">Best: <span id="bestScoreValue">0</span></div>
+                <div class="uiElementCenter">Player: <span id="playerName">Guest</span></div>
+                <div class="uiElementCenter">Revive: <span id="reviveValue">2</span></div>
+            </div>
+            
+            <div id="pauseScreen" class="pauseScreen">
+                <div class="pauseTitle">GAME PAUSED</div>
+                <button id="resumeButton" class="arcadeButton">RESUME GAME</button>
             </div>
             
             <div id="gameOverScreen">

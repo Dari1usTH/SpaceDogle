@@ -30,9 +30,11 @@ const playerName = document.getElementById('playerName');
 const reviveValue = document.getElementById('reviveValue');
 const reviveGameOverButton = document.getElementById('reviveGameOverButton');
 const reviveCount = document.getElementById('reviveCount');
+const pauseButton = document.getElementById('pauseButton');
+const pauseScreen = document.getElementById('pauseScreen');
+const resumeButton = document.getElementById('resumeButton');
 
-createStars(menuStars, 150);
-
+let gamePaused = false;
 let ctx;
 let bestScore = 0;
 let gameActive = false;
@@ -42,6 +44,11 @@ let revives = 2;
 let shieldActive = false;
 let shieldEndTime = 0;
 let reviveGivenOnHighScore = false;
+
+createStars(menuStars, 150);
+
+pauseButton.addEventListener('click', togglePause);
+resumeButton.addEventListener('click', togglePause);
 
 const ship = {
     x: 400,
@@ -75,9 +82,10 @@ backButton.addEventListener('click', goBackToMenu);
 function startGame() {
     menuScreen.style.display = 'none';
     gameScreen.style.display = 'flex';
-    backButton.style.display = 'block';
-    const gameUI = document.querySelector('.gameUI');
-    gameUI.style.left = '150px';
+    pauseButton.style.display = 'block';
+    pauseButton.textContent = '||';
+    pauseButton.classList.remove('paused');
+    
     setTimeout(() => {
         gameScreen.style.opacity = 1;
         initGame();
@@ -117,7 +125,11 @@ function useRevive() {
     localStorage.setItem('spacedogle_revives', revives);
     
     gameOverScreen.style.display = 'none';
-    backButton.style.display = 'block';
+    pauseButton.style.display = 'block';
+    pauseButton.textContent = '||';
+    pauseButton.classList.remove('paused');
+    gamePaused = false;
+    pauseScreen.style.display = 'none';
     
     lives = 3;
     
@@ -151,9 +163,11 @@ function showReviveEffect() {
 
 function restartGame() {
     gameOverScreen.style.display = 'none';
-    backButton.style.display = 'block';
-    const gameUI = document.querySelector('.gameUI');
-    gameUI.style.left = '150px';
+    pauseButton.style.display = 'block';
+    pauseButton.textContent = '||';
+    pauseButton.classList.remove('paused');
+    gamePaused = false;
+    pauseScreen.style.display = 'none';
 
     score = 0;
     lives = 3;
@@ -171,6 +185,10 @@ function restartGame() {
 
 function goBackToMenu() {
     gameActive = false;
+    gamePaused = false;
+    pauseScreen.style.display = 'none';
+    pauseButton.classList.remove('paused');
+    
     score = 0;
     lives = 3;
     revives = parseInt(localStorage.getItem('spacedogle_revives')) || 2;
@@ -183,6 +201,7 @@ function goBackToMenu() {
     gameOverScreen.style.display = 'none';
     menuScreen.style.display = 'flex';
     updateUI();
+    
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keyup', handleKeyUp);
     gameCanvas.removeEventListener('mousedown', handleMouseDown);
@@ -391,7 +410,10 @@ function spawnAsteroid() {
 }
 
 function gameLoop() {
-    if (!gameActive) return;
+    if (!gameActive || gamePaused) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
     
     if (shieldActive && Date.now() > shieldEndTime) {
         shieldActive = false;
@@ -574,4 +596,29 @@ function gameOver() {
     
     gameOverScreen.style.display = 'flex';
     backButton.style.display = 'block';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'p' || e.key === 'P') {
+        togglePause();
+    }
+});
+
+function togglePause() {
+    if (!gameActive || lives <= 0) return;
+    
+    gamePaused = !gamePaused;
+    
+    if (gamePaused) {
+        pauseScreen.style.display = 'flex';
+        pauseButton.textContent = '▮';
+        pauseButton.classList.add('paused');
+    } else {
+        pauseScreen.style.display = 'none';
+        pauseButton.textContent = '||';
+        pauseButton.classList.remove('paused');
+        
+        shieldActive = true;
+        shieldEndTime = Date.now() + 3000;
+    }
 }

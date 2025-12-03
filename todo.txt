@@ -9,4 +9,4 @@ turbo shoot
 
 
 -----------------------------
-best score
+restyle gameover + revive + shield active 
