@@ -1,12 +1,9 @@
 
-stele de adaugat nu alea care sunt acum
 sounds
-hit a new high score : +3 revives
-loose unse a revive
 mai putini asteroizi de o data 
 sa apara coins ( mai rar ) daca le spargi sa iti dea un revives
 turbo shoot 
 
 
 -----------------------------
-restyle gameover + revive + shield active 
+added stars

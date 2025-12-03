@@ -11,11 +11,13 @@ function createStars(container, count) {
     for (let i = 0; i < count; i++) {
         const star = document.createElement('div');
         star.className = 'star';
-        star.style.width = Math.random() * 3 + 'px';
-        star.style.height = star.style.width;
+        const size = Math.random() * 2 + 1; 
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
         star.style.left = Math.random() * 100 + '%';
         star.style.top = Math.random() * 100 + '%';
-        star.style.opacity = Math.random();
+        star.style.opacity = Math.random() * 0.6 + 0.4;
+        star.style.animation = `twinkle ${Math.random() * 10 + 5}s infinite alternate`;
         container.appendChild(star);
     }
 }
@@ -461,15 +463,33 @@ function draw() {
 }
 
 function drawStars() {
-    ctx.fillStyle = 'white';
-    for (let i = 0; i < 100; i++) {
-        const x = (i * 13) % gameCanvas.width;
-        const y = (i * 7) % gameCanvas.height;
-        const size = Math.sin(Date.now() / 1000 + i) * 1.5 + 1.5;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
+    if (!window.stars) {
+        window.stars = [];
+        for (let i = 0; i < 200; i++) {
+            window.stars.push({
+                x: Math.random() * gameCanvas.width,
+                y: Math.random() * gameCanvas.height,
+                size: Math.random() * 2 + 0.5,
+                opacity: Math.random() * 0.7 + 0.3,
+                speed: Math.random() * 0.3 + 0.1 
+            });
+        }
     }
+    ctx.fillStyle = 'white';
+    window.stars.forEach(star => {
+        star.y += star.speed;
+        if (star.y > gameCanvas.height) {
+            star.y = 0;
+            star.x = Math.random() * gameCanvas.width;
+            star.size = Math.random() * 2 + 0.5;
+            star.opacity = Math.random() * 0.7 + 0.3;
+        }
+        ctx.globalAlpha = star.opacity;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
 }
 
 function drawShip() {
