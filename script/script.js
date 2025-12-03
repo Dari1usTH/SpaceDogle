@@ -1,3 +1,11 @@
+window.addEventListener('load', () => {
+    if (sessionStorage.getItem('session_revives') === null) {
+        sessionStorage.setItem('session_revives', '2'); 
+    }
+    revives = parseInt(sessionStorage.getItem('session_revives'), 10) || 0;
+    updateUI();
+});
+
 function createStars(container, count) {
     container.innerHTML = '';
     for (let i = 0; i < count; i++) {
@@ -44,6 +52,7 @@ let revives = 2;
 let shieldActive = false;
 let shieldEndTime = 0;
 let reviveGivenOnHighScore = false;
+let animationFrameId = null;
 
 createStars(menuStars, 150);
 
@@ -96,11 +105,12 @@ function initGame() {
     ctx = gameCanvas.getContext('2d');
     score = 0;
     lives = 3;
-    revives = parseInt(localStorage.getItem('spacedogle_revives')) || 2;
+    revives = parseInt(sessionStorage.getItem('session_revives'), 10) || revives;
     reviveGivenOnHighScore = false;
     bullets = [];
     asteroids = [];
     asteroidFrameCount = 0;
+    asteroidSpawnRate = 60;
     updateUI();
     
     const savedUsername = localStorage.getItem('spacedogle_username');
@@ -115,14 +125,18 @@ function initGame() {
     gameCanvas.addEventListener('mouseup', handleMouseUp);
     gameCanvas.addEventListener('mousemove', handleMouseMove);
     gameActive = true;
-    requestAnimationFrame(gameLoop);
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function useRevive() {
     if (revives <= 0) return;
     
     revives--;
-    localStorage.setItem('spacedogle_revives', revives);
+    sessionStorage.setItem('session_revives', revives);
     
     gameOverScreen.style.display = 'none';
     pauseButton.style.display = 'block';
@@ -142,7 +156,11 @@ function useRevive() {
     updateUI();
     
     gameActive = true;
-    requestAnimationFrame(gameLoop);
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function showReviveEffect() {
@@ -171,7 +189,7 @@ function restartGame() {
 
     score = 0;
     lives = 3;
-    revives = parseInt(localStorage.getItem('spacedogle_revives')) || 2;
+    revives = parseInt(sessionStorage.getItem('session_revives'));
     reviveGivenOnHighScore = false;
     bullets = [];
     asteroids = [];
@@ -180,7 +198,11 @@ function restartGame() {
     
     updateUI();
     gameActive = true;
-    requestAnimationFrame(gameLoop);
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function goBackToMenu() {
@@ -189,9 +211,14 @@ function goBackToMenu() {
     pauseScreen.style.display = 'none';
     pauseButton.classList.remove('paused');
     
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    
     score = 0;
     lives = 3;
-    revives = parseInt(localStorage.getItem('spacedogle_revives')) || 2;
+    revives = parseInt(sessionStorage.getItem('session_revives'));
     reviveGivenOnHighScore = false;
     bullets = [];
     asteroids = [];
@@ -227,7 +254,7 @@ function updateUI() {
         document.getElementById('bestScoreValue').textContent = bestScore;
         
         revives = 1;
-        localStorage.setItem('spacedogle_revives', revives);
+        sessionStorage.setItem('session_revives', revives);
         reviveGivenOnHighScore = true;
         
         updateUI();
@@ -410,18 +437,18 @@ function spawnAsteroid() {
 }
 
 function gameLoop() {
-    if (!gameActive || gamePaused) {
-        requestAnimationFrame(gameLoop);
-        return;
+    if (!gameActive) return;
+    
+    if (!gamePaused) {
+        if (shieldActive && Date.now() > shieldEndTime) {
+            shieldActive = false;
+        }
+        
+        update();
+        draw();
     }
     
-    if (shieldActive && Date.now() > shieldEndTime) {
-        shieldActive = false;
-    }
-    
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function draw() {
