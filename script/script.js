@@ -44,6 +44,13 @@ const pauseButton = document.getElementById('pauseButton');
 const pauseScreen = document.getElementById('pauseScreen');
 const resumeButton = document.getElementById('resumeButton');
 
+let shootSound = new Audio('../sounds/shoot.mp3');
+shootSound.volume = 0.99;
+
+let backgroundMusic = new Audio('../sounds/background.mp3');
+backgroundMusic.volume = 0.2;
+backgroundMusic.loop = true;
+
 let gamePaused = false;
 let ctx;
 let bestScore = 0;
@@ -83,8 +90,8 @@ let mouseY = 0;
 let keys = {};
 
 playButton.addEventListener('click', startGame);
-resetButton.addEventListener('click', () => alert('Reset Button - Feature in development'));
 settingsButton.addEventListener('click', () => alert('Settings Button - Feature in development'));
+resetButton.addEventListener('click', () => location.reload());
 extraButton.addEventListener('click', () => alert('Bonus Button - Feature in development'));
 restartButton.addEventListener('click', restartGame);
 reviveGameOverButton.addEventListener('click', useRevive);
@@ -128,6 +135,9 @@ function initGame() {
     gameCanvas.addEventListener('mousemove', handleMouseMove);
     gameActive = true;
     
+    backgroundMusic.currentTime = 0;
+    backgroundMusic.play().catch(e => {});
+    
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
     }
@@ -158,6 +168,8 @@ function useRevive() {
     updateUI();
     
     gameActive = true;
+    
+    backgroundMusic.play().catch(e => {});
     
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -201,6 +213,9 @@ function restartGame() {
     updateUI();
     gameActive = true;
     
+    backgroundMusic.currentTime = 0;
+    backgroundMusic.play().catch(e => {});
+    
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
     }
@@ -212,6 +227,9 @@ function goBackToMenu() {
     gamePaused = false;
     pauseScreen.style.display = 'none';
     pauseButton.classList.remove('paused');
+    
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
     
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -325,6 +343,7 @@ function doShootTowards(targetX, targetY) {
         color: '#ff00ff'
     });
     lastShotTime = Date.now();
+    playShootSound();
 }
 
 function shootWithSpace() {
@@ -339,6 +358,7 @@ function shootWithSpace() {
         color: '#ff00ff'
     });
     lastShotTime = Date.now();
+    playShootSound();
 }
 
 function update() {
@@ -772,6 +792,8 @@ function gameOver() {
     gameActive = false;
     finalScore.textContent = score;
     
+    backgroundMusic.pause();
+    
     if (revives > 0) {
         reviveGameOverButton.style.display = 'block';
     } else {
@@ -797,6 +819,8 @@ function togglePause() {
         pauseScreen.style.display = 'flex';
         pauseButton.textContent = '▮';
         pauseButton.classList.add('paused');
+        
+        backgroundMusic.pause();
     } else {
         pauseScreen.style.display = 'none';
         pauseButton.textContent = '||';
@@ -804,5 +828,16 @@ function togglePause() {
         
         shieldActive = true;
         shieldEndTime = Date.now() + 3000;
+        
+        backgroundMusic.play().catch(e => {});
+    }
+}
+
+function playShootSound() {
+    if (shootSound) {
+        shootSound.currentTime = 0;
+        shootSound.play().catch(e => {
+            console.log("Audio error:", e);
+        });
     }
 }
