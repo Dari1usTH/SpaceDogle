@@ -51,10 +51,10 @@ const pauseButton = document.getElementById('pauseButton');
 const pauseScreen = document.getElementById('pauseScreen');
 const resumeButton = document.getElementById('resumeButton');
 
-let shootSound = new Audio('../sounds/shoot.mp3');
+let shootSound = new Audio('./sounds/shoot.mp3');
 shootSound.volume = 0.99;
 
-let backgroundMusic = new Audio('../sounds/background.mp3');
+let backgroundMusic = new Audio('./sounds/background.mp3');
 backgroundMusic.volume = 0.2;
 backgroundMusic.loop = true;
 
