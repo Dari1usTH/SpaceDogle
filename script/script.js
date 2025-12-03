@@ -373,11 +373,17 @@ function update() {
 
     if (!shieldActive) {
         asteroidFrameCount++;
+        
         if (asteroidFrameCount >= asteroidSpawnRate) {
             spawnAsteroid();
             asteroidFrameCount = 0;
-            if (asteroidSpawnRate > 20) {
-                asteroidSpawnRate -= 0.5;
+            
+            if (score >= 200 && score % 200 === 0) {
+                asteroidSpawnRate = Math.max(asteroidSpawnRate - 15, 10);
+            } else {
+                if (asteroidSpawnRate > 20) {
+                    asteroidSpawnRate -= 0.5;
+                }
             }
         }
     }
@@ -447,7 +453,7 @@ function update() {
 function spawnAsteroid() {
     const chance = Math.random();
     
-    if (chance < 0.075) {
+    if (chance < 0.050) {
         const radius = Math.random() * 20 + 50;
         const hitsNeeded = Math.floor(Math.random() * 2) + 3;
         asteroids.push({
@@ -463,7 +469,7 @@ function spawnAsteroid() {
             hits: 0,
             hitsNeeded: hitsNeeded
         });
-    } else if (chance < 0.125) {
+    } else if (chance < 0.075) {
         const radius = Math.random() * 5 + 10;
         asteroids.push({
             x: Math.random() * (gameCanvas.width - radius * 2) + radius,
