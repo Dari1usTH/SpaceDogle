@@ -3,6 +3,13 @@ window.addEventListener('load', () => {
         sessionStorage.setItem('session_revives', '2');
     }
     revives = parseInt(sessionStorage.getItem('session_revives'), 10) || 0;
+    
+    if (localStorage.getItem('spacedogle_audio') !== null) {
+        audioEnabled = localStorage.getItem('spacedogle_audio') === 'true';
+    }
+    
+    applyAudioSettings();
+    updateAudioButtonText();
     updateUI();
 });
 
@@ -25,9 +32,9 @@ function createStars(container, count) {
 const menuScreen = document.getElementById('menuScreen');
 const gameScreen = document.getElementById('gameScreen');
 const playButton = document.getElementById('playButton');
-const resetButton = document.getElementById('resetButton');
-const settingsButton = document.getElementById('settingsButton');
-const extraButton = document.getElementById('extraButton');
+const refreshButton = document.getElementById('refreshButton');
+const audioButton = document.getElementById('audioButton');
+const moonshotButton = document.getElementById('moonshotButton');
 const restartButton = document.getElementById('restartButton');
 const backButton = document.getElementById('backButton');
 const gameCanvas = document.getElementById('gameCanvas');
@@ -51,6 +58,7 @@ let backgroundMusic = new Audio('../sounds/background.mp3');
 backgroundMusic.volume = 0.2;
 backgroundMusic.loop = true;
 
+let audioEnabled = true;
 let gamePaused = false;
 let ctx;
 let bestScore = 0;
@@ -90,12 +98,43 @@ let mouseY = 0;
 let keys = {};
 
 playButton.addEventListener('click', startGame);
-settingsButton.addEventListener('click', () => alert('Settings Button - Feature in development'));
-resetButton.addEventListener('click', () => location.reload());
-extraButton.addEventListener('click', () => alert('Bonus Button - Feature in development'));
+refreshButton.addEventListener('click', () => location.reload());
+moonshotButton.addEventListener('click', () => window.open('https://moonshot.hackclub.com', '_blank'));
+audioButton.addEventListener('click', toggleAudio);
 restartButton.addEventListener('click', restartGame);
 reviveGameOverButton.addEventListener('click', useRevive);
 backButton.addEventListener('click', goBackToMenu);
+
+function applyAudioSettings() {
+    if (audioEnabled) {
+        shootSound.volume = 0.99;
+        backgroundMusic.volume = 0.2;
+    } else {
+        shootSound.volume = 0;
+        backgroundMusic.volume = 0;
+        backgroundMusic.pause();
+    }
+}
+
+function updateAudioButtonText() {
+    audioButton.textContent = audioEnabled ? 'Audio: ON' : 'Audio: OFF';
+}
+
+function toggleAudio() {
+    audioEnabled = !audioEnabled;
+    applyAudioSettings();
+    updateAudioButtonText();
+    
+    if (audioEnabled && gameActive && !backgroundMusic.paused && !gamePaused) {
+        backgroundMusic.play().catch(e => {});
+    }
+}
+
+function maybePlayBackgroundMusic() {
+    if (audioEnabled && gameActive && backgroundMusic.paused && !gamePaused) {
+        backgroundMusic.play().catch(e => {});
+    }
+}
 
 function startGame() {
     menuScreen.style.display = 'none';
@@ -135,8 +174,10 @@ function initGame() {
     gameCanvas.addEventListener('mousemove', handleMouseMove);
     gameActive = true;
     
-    backgroundMusic.currentTime = 0;
-    backgroundMusic.play().catch(e => {});
+    if (audioEnabled) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(e => {});
+    }
     
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -169,7 +210,9 @@ function useRevive() {
     
     gameActive = true;
     
-    backgroundMusic.play().catch(e => {});
+    if (audioEnabled) {
+        backgroundMusic.play().catch(e => {});
+    }
     
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -213,8 +256,10 @@ function restartGame() {
     updateUI();
     gameActive = true;
     
-    backgroundMusic.currentTime = 0;
-    backgroundMusic.play().catch(e => {});
+    if (audioEnabled) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(e => {});
+    }
     
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -820,7 +865,9 @@ function togglePause() {
         pauseButton.textContent = '▮';
         pauseButton.classList.add('paused');
         
-        backgroundMusic.pause();
+        if (audioEnabled) {
+            backgroundMusic.pause();
+        }
     } else {
         pauseScreen.style.display = 'none';
         pauseButton.textContent = '||';
@@ -829,15 +876,15 @@ function togglePause() {
         shieldActive = true;
         shieldEndTime = Date.now() + 3000;
         
-        backgroundMusic.play().catch(e => {});
+        if (audioEnabled) {
+            backgroundMusic.play().catch(e => {});
+        }
     }
 }
 
 function playShootSound() {
     if (shootSound) {
         shootSound.currentTime = 0;
-        shootSound.play().catch(e => {
-            console.log("Audio error:", e);
-        });
+        shootSound.play().catch(e => {});
     }
 }
